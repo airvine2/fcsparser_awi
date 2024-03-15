@@ -20,6 +20,9 @@ import numpy
 import pandas as pd
 import six
 
+from werkzeug.datastructures import FileStorage
+
+
 logger = logging.getLogger(__name__)
 
 
@@ -194,11 +197,15 @@ class FCSParser(object):
             raise ValueError('channel_naming must be either "$PnN" or "$PnS"')
 
         self.annotation = {}
-        self.path = path
 
-        if path:
-            with open(path, "rb") as f:
-                self.load_file(f, data_set=data_set, read_data=read_data)
+        if (isinstance(path, FileStorage)):
+            self.path = path.filename
+            self.load_file(path, data_set=data_set, read_data=read_data)
+        else:
+            self.path = path
+            if path:
+                with open(path, "rb") as f:
+                    self.load_file(f, data_set=data_set, read_data=read_data)
 
     def load_file(self, file_handle, data_set=0, read_data=True):
         """Load the requested parts of the file into memory."""
